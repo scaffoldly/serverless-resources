@@ -1,0 +1,13 @@
+{
+  "name": "serverless-resources",
+  "version": "0.0.1",
+  "description": "Lifecycle hooks for Serverless Resources",
+  "repository": "git@github.com:scaffoldly/serverless-resources.git",
+  "author": "Scaffoldly LLC",
+  "license": "MIT",
+  "private": false,
+  "main": "index.js",
+  "files": [
+    "index.js"
+  ]
+}
