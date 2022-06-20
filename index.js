@@ -13,22 +13,39 @@ const normalize = (_, value) =>
     : value;
 
 class ServerlessResources {
-  constructor(serverless, options, { log }) {
+  constructor(serverless, options) {
     this.serverless = serverless;
     this.options = options;
-    this.log = log;
     this.hooks = {
       initialize: async () => this.init(),
     };
+    // TODO CLI Commands:
+    //   - Create
+    //.  - Delete
+    //.  - Others?
   }
 
   assert() {
-    if (!this.serverless) {
-      throw new Error('serverless is unset');
+    if (!this.serverless || !this.serverless.service) {
+      throw new Error('serverless is misconfigured');
+    }
+
+    const custom = this.serverless.service.custom || {};
+    const config = custom['serverless-resources'] || {};
+    const stages = config['stages'] || ['dev'];
+    if (!Array.isArray(stages)) {
+      throw new Error('stages must be a list');
+    }
+
+    const stage = this.options.stage || 'dev';
+    if (stages && Array.isArray(stages)) {
+      if (!stages.includes(stage)) {
+        throw new Error(`current stage (${stage}) is not one of: ${stages}`);
+      }
     }
 
     if (!this.serverless.providers || !this.serverless.providers.aws) {
-      throw new Error('only the AWS provider is supported at this time');
+      throw new Error('only the AWS provider is supported');
     }
 
     if (
@@ -39,18 +56,12 @@ class ServerlessResources {
       throw new Error('no resources are defined in serverless.yml');
     }
 
-    const { plugins } = this.serverless.pluginManager;
-    const serverlessOffline = plugins.find(
-      (p) => p.__proto__.constructor.name === 'ServerlessOffline',
-    );
-    const localstack = plugins.find((p) => p.__proto__.constructor.name === 'LocalstackPlugin');
-
-    if (!serverlessOffline) {
-      throw new Error('serverless-offline plugin is not installed');
-    }
-
-    if (!localstack) {
-      throw new Error('serverless-localstack plugin is not installed');
+    // TODO disable if the deploy hook is going to run instead
+    if (
+      !this.serverless.processedInput.commands ||
+      this.serverless.processedInput.commands[0] !== 'offline'
+    ) {
+      throw new Error('not in serverless offline mode');
     }
   }
 
