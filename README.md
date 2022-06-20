@@ -58,5 +58,6 @@ custom:
 
 - Better collaboration with the generated CloudFormation template from Serverless
   - Need to find the right way to generate it during lifecycle events
+  - Lookup events in function definitions and create function triggers
 - Support Additional Cloud Providers
 - Add CLI Commands to Create/Delete/etc
